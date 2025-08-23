@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { Download } from 'lucide-react';
@@ -73,6 +74,19 @@ const ChartDisplay = ({ data, isLoading, error }: ChartDisplayProps) => {
     document.body.removeChild(link);
   };
 
+  // Custom tick formatter to wrap long text
+  const formatTick = (value: string) => {
+    if (value.length > 12) {
+      return value.substring(0, 10) + '...';
+    }
+    return value;
+  };
+
+  // Custom label formatter for tooltips to show full names
+  const formatTooltipLabel = (label: string) => {
+    return label;
+  };
+
   if (isLoading) {
     return (
       <div className="municipal-card">
@@ -140,14 +154,22 @@ const ChartDisplay = ({ data, isLoading, error }: ChartDisplayProps) => {
     switch (data.chartType) {
       case 'bar':
         return (
-          <ResponsiveContainer width="100%" height={400}>
-            <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+          <ResponsiveContainer width="100%" height={450}>
+            <BarChart 
+              data={chartData} 
+              margin={{ top: 20, right: 30, left: 20, bottom: 80 }}
+            >
               <CartesianGrid strokeDasharray="3 3" stroke={chartColors.grid} opacity={0.3} />
               <XAxis 
                 dataKey="name" 
                 stroke={chartColors.text} 
-                fontSize={12}
+                fontSize={11}
                 tick={{ fill: chartColors.text }}
+                tickFormatter={formatTick}
+                angle={-45}
+                textAnchor="end"
+                height={80}
+                interval={0}
               />
               <YAxis 
                 stroke={chartColors.text} 
@@ -155,6 +177,7 @@ const ChartDisplay = ({ data, isLoading, error }: ChartDisplayProps) => {
                 tick={{ fill: chartColors.text }}
               />
               <Tooltip 
+                labelFormatter={formatTooltipLabel}
                 contentStyle={{ 
                   backgroundColor: chartColors.background, 
                   border: `1px solid ${chartColors.border}`,
@@ -192,6 +215,7 @@ const ChartDisplay = ({ data, isLoading, error }: ChartDisplayProps) => {
                 tick={{ fill: chartColors.text }}
               />
               <Tooltip 
+                labelFormatter={formatTooltipLabel}
                 contentStyle={{ 
                   backgroundColor: chartColors.background, 
                   border: `1px solid ${chartColors.border}`,
@@ -226,17 +250,20 @@ const ChartDisplay = ({ data, isLoading, error }: ChartDisplayProps) => {
       case 'pie':
       case 'doughnut':
         return (
-          <ResponsiveContainer width="100%" height={400}>
+          <ResponsiveContainer width="100%" height={500}>
             <PieChart>
               <Pie
                 data={chartData}
                 cx="50%"
                 cy="50%"
                 innerRadius={data.chartType === 'doughnut' ? 70 : 0}
-                outerRadius={150}
+                outerRadius={180}
                 paddingAngle={3}
                 dataKey="value"
-                label={({ name, percent }) => `${name} ${(percent * 100).toFixed(1)}%`}
+                label={({ name, percent }) => {
+                  const shortName = name.length > 15 ? name.substring(0, 12) + '...' : name;
+                  return `${shortName} ${(percent * 100).toFixed(1)}%`;
+                }}
                 labelLine={false}
               >
                 {chartData.map((entry: any, index: number) => (
@@ -249,6 +276,8 @@ const ChartDisplay = ({ data, isLoading, error }: ChartDisplayProps) => {
                 ))}
               </Pie>
               <Tooltip 
+                formatter={(value, name) => [value, name]}
+                labelFormatter={formatTooltipLabel}
                 contentStyle={{ 
                   backgroundColor: chartColors.background, 
                   border: `1px solid ${chartColors.border}`,
@@ -263,14 +292,22 @@ const ChartDisplay = ({ data, isLoading, error }: ChartDisplayProps) => {
       
       default:
         return (
-          <ResponsiveContainer width="100%" height={400}>
-            <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+          <ResponsiveContainer width="100%" height={450}>
+            <BarChart 
+              data={chartData} 
+              margin={{ top: 20, right: 30, left: 20, bottom: 80 }}
+            >
               <CartesianGrid strokeDasharray="3 3" stroke={chartColors.grid} opacity={0.3} />
               <XAxis 
                 dataKey="name" 
                 stroke={chartColors.text}
-                fontSize={12}
+                fontSize={11}
                 tick={{ fill: chartColors.text }}
+                tickFormatter={formatTick}
+                angle={-45}
+                textAnchor="end"
+                height={80}
+                interval={0}
               />
               <YAxis 
                 stroke={chartColors.text}
@@ -278,6 +315,7 @@ const ChartDisplay = ({ data, isLoading, error }: ChartDisplayProps) => {
                 tick={{ fill: chartColors.text }}
               />
               <Tooltip 
+                labelFormatter={formatTooltipLabel}
                 contentStyle={{ 
                   backgroundColor: chartColors.background, 
                   border: `1px solid ${chartColors.border}`,

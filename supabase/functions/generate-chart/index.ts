@@ -115,6 +115,11 @@ Database Schema:
 - service_categories: category_id, category_name
 - status_logs: log_id, complaint_id, status, status_date (DATE)
 
+IMPORTANT JOIN RULES:
+- Use DISTINCT table aliases (c, r, sc, sl) - never reuse alias names
+- For status queries, use the LATEST status per complaint with window functions
+- For resolution time, calculate ONLY between submission_date and LATEST status_date where status = 'Resolved'
+
 Return ONLY a JSON object with this structure:
 {
   "sql": "SELECT category_name as name, COUNT(*) as value FROM service_categories sc JOIN complaints c ON sc.category_id = c.category_id GROUP BY category_name ORDER BY value DESC",
@@ -130,20 +135,37 @@ PostgreSQL Date Function Examples:
 - Month name: TO_CHAR(submission_date, 'Mon')
 - Year-month: TO_CHAR(submission_date, 'YYYY-MM')
 
+CRITICAL SQL PATTERNS:
+- Status distribution: Use DISTINCT ON (complaint_id) or window functions to get LATEST status per complaint
+- Resolution time: Join with LATEST status_logs WHERE status = 'Resolved'
+- Ward queries: Join residents table using resident_id
+- Category queries: Join service_categories using category_id
+
+Example for status distribution:
+SELECT status as name, COUNT(*) as value 
+FROM (
+  SELECT DISTINCT ON (complaint_id) complaint_id, status 
+  FROM status_logs 
+  ORDER BY complaint_id, status_date DESC
+) latest_status 
+GROUP BY status ORDER BY value DESC
+
 Rules:
 - ONLY SELECT statements allowed
 - Always alias columns as "name" and "value" for charts
-- Use proper JOINs between tables
+- Use proper JOINs between tables with DISTINCT aliases
 - Include appropriate GROUP BY and ORDER BY clauses
 - Choose appropriate chart type based on data
 - Make the title descriptive
 - Use PostgreSQL syntax only (no SQLite functions like strftime)
+- For status queries, ensure you get the LATEST status per complaint to avoid duplicates
 
 Examples:
 - "complaints by category" → GROUP BY category with COUNT
 - "complaints by ward" → JOIN residents, GROUP BY ward
 - "monthly trends" → GROUP BY DATE_TRUNC('month', submission_date)
-- "status breakdown" → JOIN status_logs, GROUP BY status
+- "status breakdown" → Use DISTINCT ON or window function to get latest status per complaint
+- "water leak by ward" → JOIN service_categories WHERE category_name LIKE '%Water Leak%', then JOIN residents
 `.trim();
 
   const body = {
