@@ -65,6 +65,15 @@ function validateAndCleanSQL(sql: string): string | null {
     }
   }
   
+  // Check for SQLite functions that don't exist in PostgreSQL
+  const sqliteFunctions = ['strftime'];
+  for (const func of sqliteFunctions) {
+    if (cleanSql.includes(func)) {
+      console.error(`SQLite function '${func}' detected in query. PostgreSQL syntax required.`);
+      return null;
+    }
+  }
+  
   return sql.trim();
 }
 
@@ -92,13 +101,19 @@ function clampPlan(raw: any): Plan | null {
 
 async function askGeminiForPlan(prompt: string): Promise<Plan | null> {
   const system = `
-You are a SQL query generator for a municipal complaints database. Generate SAFE SELECT-only queries.
+You are a SQL query generator for a PostgreSQL database containing municipal complaints data. Generate SAFE SELECT-only queries using PostgreSQL syntax.
+
+CRITICAL: Use POSTGRESQL syntax, NOT SQLite. Key differences:
+- Use DATE_TRUNC() instead of strftime()
+- Use EXTRACT() for date parts
+- Use TO_CHAR() for date formatting
+- Use COALESCE() instead of IFNULL()
 
 Database Schema:
-- complaints: complaint_id, category_id, resident_id, title, description, submission_date
-- residents: resident_id, first_name, last_name, email, phone, ward
+- complaints: complaint_id, category_id, resident_id, title, description, submission_date (DATE)
+- residents: resident_id, first_name, last_name, email, phone, ward (INTEGER)
 - service_categories: category_id, category_name
-- status_logs: log_id, complaint_id, status, status_date
+- status_logs: log_id, complaint_id, status, status_date (DATE)
 
 Return ONLY a JSON object with this structure:
 {
@@ -109,6 +124,12 @@ Return ONLY a JSON object with this structure:
   "valueColumn": "value"
 }
 
+PostgreSQL Date Function Examples:
+- Monthly trends: DATE_TRUNC('month', submission_date)
+- Year extraction: EXTRACT(YEAR FROM submission_date)
+- Month name: TO_CHAR(submission_date, 'Mon')
+- Year-month: TO_CHAR(submission_date, 'YYYY-MM')
+
 Rules:
 - ONLY SELECT statements allowed
 - Always alias columns as "name" and "value" for charts
@@ -116,11 +137,12 @@ Rules:
 - Include appropriate GROUP BY and ORDER BY clauses
 - Choose appropriate chart type based on data
 - Make the title descriptive
+- Use PostgreSQL syntax only (no SQLite functions like strftime)
 
 Examples:
 - "complaints by category" → GROUP BY category with COUNT
 - "complaints by ward" → JOIN residents, GROUP BY ward
-- "monthly trends" → GROUP BY month/date
+- "monthly trends" → GROUP BY DATE_TRUNC('month', submission_date)
 - "status breakdown" → JOIN status_logs, GROUP BY status
 `.trim();
 
@@ -180,7 +202,7 @@ serve(async (req) => {
     // Ask Gemini to generate a SQL query
     const plan = await askGeminiForPlan(prompt);
     if (!plan) {
-      return new Response(JSON.stringify({ error: "Could not generate a valid SQL query from the prompt." }), {
+      return new Response(JSON.stringify({ error: "Could not generate a valid PostgreSQL query from the prompt. Please try rephrasing your request." }), {
         status: 422,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -195,7 +217,7 @@ serve(async (req) => {
 
     if (error) {
       console.error("Supabase SQL error:", error);
-      return new Response(JSON.stringify({ error: `SQL execution failed: ${error.message}` }), {
+      return new Response(JSON.stringify({ error: `SQL execution failed: ${error.message}. The query may contain unsupported syntax.` }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -235,7 +257,7 @@ serve(async (req) => {
     });
   } catch (e: any) {
     console.error("generate-chart unexpected error:", e?.message || e);
-    return new Response(JSON.stringify({ error: "Unexpected error generating chart." }), {
+    return new Response(JSON.stringify({ error: "Unexpected error generating chart. Please try again." }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
