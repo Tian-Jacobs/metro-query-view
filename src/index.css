@@ -168,20 +168,33 @@
   }
 }
 
-/* Custom Scrollbar for Municipal Theme */
+/* Custom Scrollbar for Municipal Theme - Grey Scheme */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 8px;
+  height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: hsl(var(--muted));
+  background: #f1f5f9; /* slate-100 */
+  border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: hsl(var(--municipal-gray-light));
-  border-radius: 3px;
+  background: #cbd5e1; /* slate-300 */
+  border-radius: 4px;
+  border: 1px solid #e2e8f0; /* slate-200 */
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: hsl(var(--municipal-gray));
+  background: #94a3b8; /* slate-400 */
+}
+
+::-webkit-scrollbar-corner {
+  background: #f1f5f9; /* slate-100 */
+}
+
+/* Firefox scrollbar styling */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 #f1f5f9; /* thumb track */
 }

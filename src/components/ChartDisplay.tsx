@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { Download } from 'lucide-react';
@@ -52,8 +51,26 @@ const ChartDisplay = ({ data, isLoading, error }: ChartDisplayProps) => {
   };
 
   const handleExport = () => {
-    console.log('Exporting chart...');
-    // Implementation for chart export would go here
+    if (!data) return;
+
+    // Create CSV content
+    const csvContent = data.data
+      .map((row: any) => `${row.name},${row.value}`)
+      .join('\n');
+    
+    const header = 'Category,Value\n';
+    const fullCsvContent = header + csvContent;
+
+    // Create and download file
+    const blob = new Blob([fullCsvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `${data.title.replace(/\s+/g, '_').toLowerCase()}_data.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   if (isLoading) {
@@ -300,7 +317,7 @@ const ChartDisplay = ({ data, isLoading, error }: ChartDisplayProps) => {
             onClick={handleExport}
             variant="outline"
             size="sm"
-            className="border-blue-600 text-blue-600 hover:bg-blue-50 shadow-sm hover:shadow-md transition-all bg-white"
+            className="border-blue-600 text-blue-600 hover:bg-blue-50 hover:text-blue-700 shadow-sm hover:shadow-md transition-all bg-white"
           >
             <Download className="w-4 h-4 mr-2" />
             Export
@@ -312,7 +329,7 @@ const ChartDisplay = ({ data, isLoading, error }: ChartDisplayProps) => {
       </div>
 
       {/* Table Preview and SQL Query Display */}
-      {data.dataPreview && data.sql && (
+      {data?.dataPreview && data.sql && (
         <TablePreview 
           data={data.dataPreview}
           title={data.title}
