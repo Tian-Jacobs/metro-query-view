@@ -56,39 +56,6 @@ export type Database = {
           },
         ]
       }
-      profiles: {
-        Row: {
-          created_at: string
-          email: string | null
-          first_name: string | null
-          id: string
-          last_name: string | null
-          role: string
-          updated_at: string
-          ward: number | null
-        }
-        Insert: {
-          created_at?: string
-          email?: string | null
-          first_name?: string | null
-          id: string
-          last_name?: string | null
-          role?: string
-          updated_at?: string
-          ward?: number | null
-        }
-        Update: {
-          created_at?: string
-          email?: string | null
-          first_name?: string | null
-          id?: string
-          last_name?: string | null
-          role?: string
-          updated_at?: string
-          ward?: number | null
-        }
-        Relationships: []
-      }
       residents: {
         Row: {
           email: string
@@ -202,10 +169,6 @@ export type Database = {
       execute_sql: {
         Args: { query: string }
         Returns: Json
-      }
-      get_current_user_role: {
-        Args: Record<PropertyKey, never>
-        Returns: string
       }
     }
     Enums: {

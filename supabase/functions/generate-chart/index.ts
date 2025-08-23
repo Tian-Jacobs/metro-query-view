@@ -1,3 +1,4 @@
+
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
@@ -29,7 +30,10 @@ if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
   console.error("SUPABASE_URL or SUPABASE_ANON_KEY/SERVICE_ROLE_KEY missing in environment.");
 }
 
+const supabase = createClient(SUPABASE_URL!, SUPABASE_ANON_KEY!);
+
 function safeParsePlan(text: string): Plan | null {
+  // Extract first JSON object from the model's output
   const start = text.indexOf("{");
   const end = text.lastIndexOf("}");
   if (start === -1 || end === -1 || end <= start) return null;
@@ -43,16 +47,25 @@ function safeParsePlan(text: string): Plan | null {
 
 function validateAndCleanSQL(sql: string): string | null {
   const cleanSql = sql.trim().toLowerCase();
-  if (!cleanSql.startsWith('select')) return null;
-
+  
+  // Only allow SELECT statements
+  if (!cleanSql.startsWith('select')) {
+    return null;
+  }
+  
+  // Block dangerous keywords
   const dangerousKeywords = [
-    'drop', 'delete', 'update', 'insert', 'alter', 'create', 'truncate',
+    'drop', 'delete', 'update', 'insert', 'alter', 'create', 'truncate', 
     'exec', 'execute', 'sp_', 'xp_', 'pg_', 'information_schema'
   ];
+  
   for (const keyword of dangerousKeywords) {
-    if (cleanSql.includes(keyword)) return null;
+    if (cleanSql.includes(keyword)) {
+      return null;
+    }
   }
-
+  
+  // Check for SQLite functions that don't exist in PostgreSQL
   const sqliteFunctions = ['strftime'];
   for (const func of sqliteFunctions) {
     if (cleanSql.includes(func)) {
@@ -60,12 +73,13 @@ function validateAndCleanSQL(sql: string): string | null {
       return null;
     }
   }
-
+  
   return sql.trim();
 }
 
 function clampPlan(raw: any): Plan | null {
   if (!raw?.sql || typeof raw.sql !== 'string') return null;
+  
   const cleanedSQL = validateAndCleanSQL(raw.sql);
   if (!cleanedSQL) return null;
 
@@ -73,7 +87,7 @@ function clampPlan(raw: any): Plan | null {
     if (raw?.chartType && ["bar", "line", "pie", "doughnut"].includes(raw.chartType)) {
       return raw.chartType;
     }
-    return "bar";
+    return "bar"; // default
   })();
 
   return {
@@ -161,12 +175,19 @@ Examples:
         parts: [{ text: `${system}\n\nUser prompt: ${prompt}\n\nReturn ONLY the JSON object.` }],
       },
     ],
-    generationConfig: { temperature: 0.1, maxOutputTokens: 1024 },
+    generationConfig: {
+      temperature: 0.1,
+      maxOutputTokens: 1024,
+    },
   };
 
   const resp = await fetch(
     `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
-    { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    }
   );
 
   if (!resp.ok) {
@@ -175,7 +196,9 @@ Examples:
   }
 
   const data = await resp.json();
-  const text: string = data?.candidates?.[0]?.content?.parts?.map((p: any) => p.text).join("\n") ?? "";
+  const text: string =
+    data?.candidates?.[0]?.content?.parts?.map((p: any) => p.text).join("\n") ?? "";
+
   console.log("Gemini response:", text);
 
   const parsed = safeParsePlan(text);
@@ -184,39 +207,13 @@ Examples:
 }
 
 serve(async (req) => {
-  // Handle CORS preflight
+  // Handle CORS
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
-  // Require Authorization header (JWT from Supabase Auth)
-  const authHeader = req.headers.get("Authorization") ?? "";
-  if (!authHeader.toLowerCase().startsWith("bearer ")) {
-    return new Response(JSON.stringify({ error: "Unauthorized: missing or invalid Authorization header." }), {
-      status: 401,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
-  }
-
-  // Create a Supabase client bound to the user's JWT so RLS/auth.uid() work
-  const supabase = createClient(SUPABASE_URL!, SUPABASE_ANON_KEY!, {
-    global: { headers: { Authorization: authHeader } },
-  });
-
   try {
-    // Optional: early role check to return clearer errors (Postgres will enforce too)
-    const { data: role, error: roleErr } = await supabase.rpc('get_current_user_role');
-    if (roleErr) {
-      console.error("Role check error:", roleErr);
-    }
-    if (!role || !['staff', 'admin'].includes(String(role))) {
-      return new Response(JSON.stringify({ error: "Forbidden: only staff and admin can generate charts." }), {
-        status: 403,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
-    const { prompt, chartType: desiredChartType } = await req.json();
+    const { prompt, chartType: desiredChartType, previewOnly } = await req.json();
     if (!prompt || typeof prompt !== "string") {
       return new Response(JSON.stringify({ error: "Missing 'prompt' string." }), {
         status: 400,
@@ -224,6 +221,7 @@ serve(async (req) => {
       });
     }
 
+    // Ask Gemini to generate a SQL query
     const plan = await askGeminiForPlan(prompt);
     if (!plan) {
       return new Response(JSON.stringify({ error: "Could not generate a valid PostgreSQL query from the prompt. Please try rephrasing your request." }), {
@@ -234,7 +232,11 @@ serve(async (req) => {
 
     console.log("Executing SQL:", plan.sql);
 
-    const { data, error } = await supabase.rpc('execute_raw_sql', { sql_query: plan.sql });
+    // Execute the SQL query using Supabase's RPC function
+    const { data, error } = await supabase.rpc('execute_raw_sql', {
+      sql_query: plan.sql
+    });
+
     if (error) {
       console.error("Supabase SQL error:", error);
       return new Response(JSON.stringify({ error: `SQL execution failed: ${error.message}. The query may contain unsupported syntax.` }), {
@@ -243,6 +245,7 @@ serve(async (req) => {
       });
     }
 
+    // Transform the data for chart consumption
     const rawData = Array.isArray(data) ? data : [];
     const chartData = rawData.map((row: any) => {
       const result = row.result || row;
@@ -252,6 +255,7 @@ serve(async (req) => {
       };
     });
 
+    // Create data preview (show raw SQL results)
     const dataPreview = rawData.slice(0, 50).map((row: any, index: number) => {
       const result = row.result || row;
       return { row_number: index + 1, ...result };

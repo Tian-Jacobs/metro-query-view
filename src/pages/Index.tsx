@@ -6,9 +6,6 @@ import QueryInput from '@/components/QueryInput';
 import ChartDisplay from '@/components/ChartDisplay';
 import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import AuthDialog from '@/components/AuthDialog';
-import AuthStatus from '@/components/AuthStatus';
-import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
 
 interface ChartData {
   chartType: string;
@@ -25,9 +22,6 @@ const Index = () => {
   const [chartData, setChartData] = useState<ChartData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [authOpen, setAuthOpen] = useState(false);
-
-  const { session, profile, role, loading, signIn, signUp, signOut } = useSupabaseAuth();
 
   const handleQuerySelect = (selectedQuery: string) => {
     setQuery(selectedQuery);
@@ -140,24 +134,6 @@ const Index = () => {
       return;
     }
 
-    // Require authentication and proper role
-    if (!session?.access_token) {
-      toast({
-        title: "Sign in required",
-        description: "Please sign in to generate charts.",
-      });
-      setAuthOpen(true);
-      return;
-    }
-    if (!['staff', 'admin'].includes(role)) {
-      toast({
-        title: "Access denied",
-        description: "Only staff and admin users can generate charts.",
-        variant: "destructive"
-      });
-      return;
-    }
-
     setIsLoading(true);
     setError(null);
 
@@ -213,34 +189,18 @@ const Index = () => {
 
   return (
     <DashboardLayout>
-      <div className="flex items-center justify-between px-6 pt-6">
-        <div>
-          <h2 className="text-xl font-semibold text-slate-800">Analytics Dashboard</h2>
+      <QuerySidebar onQuerySelect={handleQuerySelect} />
+      
+      <main className="flex-1 p-6 max-w-6xl">
+        <div className="mb-6">
+          <h2 className="text-xl font-semibold text-slate-800 mb-2">
+            Analytics Dashboard
+          </h2>
           <p className="text-slate-600">
             Generate insights from municipal complaints data using natural language queries.
           </p>
         </div>
-        <AuthStatus
-          email={profile?.email ?? session?.user?.email}
-          role={role}
-          onSignInClick={() => setAuthOpen(true)}
-          onSignOut={() => signOut()}
-          loading={loading}
-        />
-      </div>
 
-      <div className="px-6">
-        {session && !['staff', 'admin'].includes(role) && (
-          <div className="mt-4 rounded-md border p-3 text-sm">
-            You are signed in as <span className="font-medium">{profile?.email ?? session.user.email}</span> with role "<span className="font-medium">{role}</span>".
-            Only staff and admin can generate charts. Ask an administrator to update your role.
-          </div>
-        )}
-      </div>
-
-      <QuerySidebar onQuerySelect={handleQuerySelect} />
-      
-      <main className="flex-1 p-6 max-w-6xl">
         <QueryInput
           query={query}
           setQuery={setQuery}
@@ -256,13 +216,6 @@ const Index = () => {
           error={error}
         />
       </main>
-
-      <AuthDialog
-        open={authOpen}
-        onOpenChange={setAuthOpen}
-        onSignIn={signIn}
-        onSignUp={signUp}
-      />
     </DashboardLayout>
   );
 };
