@@ -1,7 +1,6 @@
-
-import React from 'react';
+import React, { useRef } from 'react';
 import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { Download } from 'lucide-react';
+import { Download, FileImage, FileSpreadsheet } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import TablePreview from './TablePreview';
 
@@ -21,6 +20,8 @@ interface ChartDisplayProps {
 }
 
 const ChartDisplay = ({ data, isLoading, error }: ChartDisplayProps) => {
+  const chartRef = useRef<HTMLDivElement>(null);
+
   // Enhanced color palette with better variety and accessibility - Municipal theme
   const COLORS = [
     'hsl(221, 83%, 53%)',   // Primary Blue
@@ -51,7 +52,7 @@ const ChartDisplay = ({ data, isLoading, error }: ChartDisplayProps) => {
     border: 'hsl(214, 32%, 91%)'
   };
 
-  const handleExport = () => {
+  const handleExportCSV = () => {
     if (!data) return;
 
     // Create CSV content
@@ -72,6 +73,38 @@ const ChartDisplay = ({ data, isLoading, error }: ChartDisplayProps) => {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+  };
+
+  const handleExportImage = async () => {
+    if (!chartRef.current || !data) return;
+
+    try {
+      // Use html2canvas to capture the chart
+      const html2canvas = (await import('html2canvas')).default;
+      
+      const canvas = await html2canvas(chartRef.current, {
+        backgroundColor: '#ffffff',
+        scale: 2, // Higher quality
+        logging: false,
+        useCORS: true,
+      });
+
+      // Convert canvas to blob and download
+      canvas.toBlob((blob) => {
+        if (blob) {
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = `${data.title.replace(/\s+/g, '_').toLowerCase()}_chart.png`;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          URL.revokeObjectURL(url);
+        }
+      }, 'image/png');
+    } catch (error) {
+      console.error('Error exporting image:', error);
+    }
   };
 
   // Custom tick formatter to wrap long text
@@ -351,17 +384,28 @@ const ChartDisplay = ({ data, isLoading, error }: ChartDisplayProps) => {
               {data.totalRecords} total records
             </p>
           </div>
-          <Button
-            onClick={handleExport}
-            variant="outline"
-            size="sm"
-            className="border-blue-600 text-blue-600 hover:bg-blue-50 hover:text-blue-700 shadow-sm hover:shadow-md transition-all bg-white"
-          >
-            <Download className="w-4 h-4 mr-2" />
-            Export
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              onClick={handleExportCSV}
+              variant="outline"
+              size="sm"
+              className="border-blue-600 text-blue-600 hover:bg-blue-50 hover:text-blue-700 shadow-sm hover:shadow-md transition-all bg-white"
+            >
+              <FileSpreadsheet className="w-4 h-4 mr-2" />
+              CSV
+            </Button>
+            <Button
+              onClick={handleExportImage}
+              variant="outline"
+              size="sm"
+              className="border-green-600 text-green-600 hover:bg-green-50 hover:text-green-700 shadow-sm hover:shadow-md transition-all bg-white"
+            >
+              <FileImage className="w-4 h-4 mr-2" />
+              Image
+            </Button>
+          </div>
         </div>
-        <div className="municipal-card-body">
+        <div className="municipal-card-body" ref={chartRef}>
           {renderChart()}
         </div>
       </div>
