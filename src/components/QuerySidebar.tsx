@@ -32,7 +32,8 @@ const QuerySidebar = ({ onQuerySelect }: QuerySidebarProps) => {
       queries: [
         "Water leak complaints over time",
         "Pothole reports by month",
-        "Electrical issues trend"
+        // Replaced 'Electrical issues trend' with a category that exists in many datasets
+        "Waste management complaints over time"
       ]
     },
     {

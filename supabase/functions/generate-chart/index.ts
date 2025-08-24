@@ -103,11 +103,12 @@ async function askGeminiForPlan(prompt: string): Promise<Plan | null> {
   const system = `
 You are a SQL query generator for a PostgreSQL database containing municipal complaints data. Generate SAFE SELECT-only queries using PostgreSQL syntax.
 
-CRITICAL: Use POSTGRESQL syntax, NOT SQLite. Key differences:
-- Use DATE_TRUNC() instead of strftime()
+CRITICAL: Use POSTGRESQL syntax, NOT SQLite or MySQL. Key differences:
+- Use DATE_TRUNC() instead of strftime()/DATE_FORMAT()
 - Use EXTRACT() for date parts
 - Use TO_CHAR() for date formatting
 - Use COALESCE() instead of IFNULL()
+- IMPORTANT: submission_date and status_date are DATE (not timestamp). In Postgres, DATE - DATE returns an integer number of days.
 
 Database Schema:
 - complaints: complaint_id, category_id, resident_id, title, description, submission_date (DATE)
@@ -117,8 +118,8 @@ Database Schema:
 
 IMPORTANT JOIN RULES:
 - Use DISTINCT table aliases (c, r, sc, sl) - never reuse alias names
-- For status queries, use the LATEST status per complaint with window functions
-- For resolution time, calculate ONLY between submission_date and LATEST status_date where status = 'Resolved'
+- For status queries, use the LATEST status per complaint with window functions or DISTINCT ON
+- For resolution time, calculate ONLY between c.submission_date and the LATEST sl.status_date where sl.status = 'Resolved'
 
 Return ONLY a JSON object with this structure:
 {
@@ -137,7 +138,9 @@ PostgreSQL Date Function Examples:
 
 CRITICAL SQL PATTERNS:
 - Status distribution: Use DISTINCT ON (complaint_id) or window functions to get LATEST status per complaint
-- Resolution time: Join with LATEST status_logs WHERE status = 'Resolved'
+- Resolution time (in DAYS) with DATE columns: use AVG((sl.status_date - c.submission_date)::numeric) AS value
+  - Alternatively, for hours: AVG(EXTRACT(EPOCH FROM (sl.status_date::timestamp - c.submission_date::timestamp)) / 3600.0)
+  - Do NOT call EXTRACT on a plain integer (this causes errors)
 - Ward queries: Join residents table using resident_id
 - Category queries: Join service_categories using category_id
 
@@ -150,6 +153,20 @@ FROM (
 ) latest_status 
 GROUP BY status ORDER BY value DESC
 
+Example for average resolution time by category (DAYS):
+SELECT sc.category_name AS name,
+       AVG((sl.status_date - c.submission_date)::numeric) AS value
+FROM complaints c
+JOIN service_categories sc ON c.category_id = sc.category_id
+JOIN (
+  SELECT DISTINCT ON (complaint_id) complaint_id, status_date
+  FROM status_logs
+  WHERE status = 'Resolved'
+  ORDER BY complaint_id, status_date DESC
+) sl ON c.complaint_id = sl.complaint_id
+GROUP BY sc.category_name
+ORDER BY value DESC
+
 Rules:
 - ONLY SELECT statements allowed
 - Always alias columns as "name" and "value" for charts
@@ -157,15 +174,9 @@ Rules:
 - Include appropriate GROUP BY and ORDER BY clauses
 - Choose appropriate chart type based on data
 - Make the title descriptive
-- Use PostgreSQL syntax only (no SQLite functions like strftime)
+- Use PostgreSQL syntax only (no SQLite/MySQL functions)
 - For status queries, ensure you get the LATEST status per complaint to avoid duplicates
-
-Examples:
-- "complaints by category" → GROUP BY category with COUNT
-- "complaints by ward" → JOIN residents, GROUP BY ward
-- "monthly trends" → GROUP BY DATE_TRUNC('month', submission_date)
-- "status breakdown" → Use DISTINCT ON or window function to get latest status per complaint
-- "water leak by ward" → JOIN service_categories WHERE category_name LIKE '%Water Leak%', then JOIN residents
+- For resolution time, use the DATE-safe patterns shown above
 `.trim();
 
   const body = {
