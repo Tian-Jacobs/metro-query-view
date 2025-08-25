@@ -4,6 +4,7 @@ import DashboardLayout from '@/components/DashboardLayout';
 import QuerySidebar from '@/components/QuerySidebar';
 import QueryInput from '@/components/QueryInput';
 import ChartDisplay from '@/components/ChartDisplay';
+import TablePreview from '@/components/TablePreview';
 import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -210,6 +211,19 @@ const Index = () => {
           isLoading={isLoading}
         />
 
+        {/* Show Table Preview first if we have data */}
+        {chartData && chartData.dataPreview && (
+          <div className="mb-8">
+            <TablePreview
+              data={chartData.dataPreview}
+              title={chartData.title}
+              sql={chartData.sql || ''}
+              totalRecords={chartData.totalRecords}
+            />
+          </div>
+        )}
+
+        {/* Then show Chart Display */}
         <ChartDisplay
           data={chartData}
           isLoading={isLoading}
