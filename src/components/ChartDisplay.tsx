@@ -2,7 +2,6 @@ import React, { useRef } from 'react';
 import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { Download, FileImage, FileSpreadsheet } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import TablePreview from './TablePreview';
 
 interface ChartData {
   chartType: string;
@@ -372,53 +371,40 @@ const ChartDisplay = ({ data, isLoading, error }: ChartDisplayProps) => {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Chart */}
-      <div className="municipal-card">
-        <div className="municipal-card-header flex justify-between items-center">
-          <div>
-            <h3 className="text-xl font-bold text-slate-800 mb-1">
-              {data.title}
-            </h3>
-            <p className="text-sm text-slate-600">
-              {data.totalRecords} total records
-            </p>
-          </div>
-          <div className="flex gap-2">
-            <Button
-              onClick={handleExportCSV}
-              variant="outline"
-              size="sm"
-              className="border-blue-600 text-blue-600 hover:bg-blue-50 hover:text-blue-700 shadow-sm hover:shadow-md transition-all bg-white"
-            >
-              <FileSpreadsheet className="w-4 h-4 mr-2" />
-              CSV
-            </Button>
-            <Button
-              onClick={handleExportImage}
-              variant="outline"
-              size="sm"
-              className="border-green-600 text-green-600 hover:bg-green-50 hover:text-green-700 shadow-sm hover:shadow-md transition-all bg-white"
-            >
-              <FileImage className="w-4 h-4 mr-2" />
-              Image
-            </Button>
-          </div>
+    <div className="municipal-card">
+      <div className="municipal-card-header flex justify-between items-center">
+        <div>
+          <h3 className="text-xl font-bold text-slate-800 mb-1">
+            {data.title}
+          </h3>
+          <p className="text-sm text-slate-600">
+            {data.totalRecords} total records
+          </p>
         </div>
-        <div className="municipal-card-body" ref={chartRef}>
-          {renderChart()}
+        <div className="flex gap-2">
+          <Button
+            onClick={handleExportCSV}
+            variant="outline"
+            size="sm"
+            className="border-blue-600 text-blue-600 hover:bg-blue-50 hover:text-blue-700 shadow-sm hover:shadow-md transition-all bg-white"
+          >
+            <FileSpreadsheet className="w-4 h-4 mr-2" />
+            CSV
+          </Button>
+          <Button
+            onClick={handleExportImage}
+            variant="outline"
+            size="sm"
+            className="border-green-600 text-green-600 hover:bg-green-50 hover:text-green-700 shadow-sm hover:shadow-md transition-all bg-white"
+          >
+            <FileImage className="w-4 h-4 mr-2" />
+            Image
+          </Button>
         </div>
       </div>
-
-      {/* Table Preview and SQL Query Display */}
-      {data?.dataPreview && data.sql && (
-        <TablePreview 
-          data={data.dataPreview}
-          title={data.title}
-          sql={data.sql}
-          totalRecords={data.totalRecords}
-        />
-      )}
+      <div className="municipal-card-body" ref={chartRef}>
+        {renderChart()}
+      </div>
     </div>
   );
 };
