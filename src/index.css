@@ -47,10 +47,10 @@
     --municipal-gray-light: 148 163 184;
 
     /* Chart Colors */
-    --chart-primary: 59 130 246;
-    --chart-secondary: 16 185 129;
-    --chart-tertiary: 100 116 139;
-    --chart-quaternary: 239 68 68;
+    --chart-primary: 30 64 175;
+    --chart-secondary: 5 150 105;
+    --chart-tertiary: 71 85 105;
+    --chart-quaternary: 148 163 184;
   }
 
   .dark {
@@ -60,19 +60,19 @@
     --card-foreground: 248 250 252;
     --popover: 30 41 59;
     --popover-foreground: 248 250 252;
-    --primary: 59 130 246;
+    --primary: 30 64 175;
     --primary-foreground: 15 23 42;
     --secondary: 51 65 85;
     --secondary-foreground: 248 250 252;
     --muted: 51 65 85;
     --muted-foreground: 148 163 184;
-    --accent: 16 185 129;
+    --accent: 5 150 105;
     --accent-foreground: 15 23 42;
-    --destructive: 220 38 38;
+    --destructive: 148 163 184;
     --destructive-foreground: 248 250 252;
     --border: 51 65 85;
     --input: 51 65 85;
-    --ring: 59 130 246;
+    --ring: 30 64 175;
   }
 }
 

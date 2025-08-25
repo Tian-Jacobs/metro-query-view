@@ -27,18 +27,18 @@ const ChartDisplay = ({ data, isLoading, error }: ChartDisplayProps) => {
     'hsl(221, 83%, 53%)',   // Primary Blue
     'hsl(142, 76%, 36%)',   // Primary Green
     'hsl(215, 25%, 27%)',   // Dark slate
-    'hsl(262, 83%, 58%)',   // Purple
-    'hsl(193, 95%, 68%)',   // Cyan
-    'hsl(84, 81%, 44%)',    // Lime
+    'hsl(215, 20%, 45%)',   // Medium slate
+    'hsl(215, 16%, 55%)',   // Light slate
+    'hsl(142, 60%, 45%)',   // Muted green
     'hsl(231, 48%, 48%)',   // Indigo
     'hsl(173, 58%, 39%)',   // Teal
     'hsl(215, 20%, 65%)',   // Medium slate
-    'hsl(204, 94%, 64%)',   // Light Blue
-    'hsl(291, 64%, 42%)',   // Violet
-    'hsl(100, 116, 139)',   // Muted slate
-    'hsl(348, 83%, 47%)',   // Red
-    'hsl(316, 73%, 52%)',   // Pink
-    'hsl(148, 163, 184)',   // Light slate
+    'hsl(221, 70%, 60%)',   // Light Blue
+    'hsl(215, 25%, 35%)',   // Dark slate variant
+    'hsl(215, 28%, 17%)',   // Very dark slate
+    'hsl(142, 45%, 55%)',   // Light green
+    'hsl(215, 15%, 75%)',   // Very light slate
+    'hsl(215, 12%, 85%)',   // Lightest slate
   ];
 
   // Chart color configuration - Municipal theme
