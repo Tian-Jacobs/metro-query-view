@@ -26,26 +26,26 @@ const ChartDisplay = ({ data, isLoading, error }: ChartDisplayProps) => {
   const COLORS = [
     'hsl(221, 83%, 53%)',   // Primary Blue
     'hsl(142, 76%, 36%)',   // Primary Green
-    'hsl(32, 95%, 44%)',    // Orange accent
+    'hsl(215, 25%, 27%)',   // Dark slate
     'hsl(262, 83%, 58%)',   // Purple
     'hsl(193, 95%, 68%)',   // Cyan
     'hsl(84, 81%, 44%)',    // Lime
     'hsl(231, 48%, 48%)',   // Indigo
     'hsl(173, 58%, 39%)',   // Teal
-    'hsl(25, 95%, 53%)',    // Deep Orange
+    'hsl(215, 20%, 65%)',   // Medium slate
     'hsl(204, 94%, 64%)',   // Light Blue
     'hsl(291, 64%, 42%)',   // Violet
-    'hsl(43, 96%, 56%)',    // Amber
+    'hsl(100, 116, 139)',   // Muted slate
     'hsl(348, 83%, 47%)',   // Red
     'hsl(316, 73%, 52%)',   // Pink
-    'hsl(14, 100%, 57%)',   // Red Orange
+    'hsl(148, 163, 184)',   // Light slate
   ];
 
   // Chart color configuration - Municipal theme
   const chartColors = {
     primary: 'hsl(221, 83%, 53%)',
     secondary: 'hsl(142, 76%, 36%)',
-    accent: 'hsl(32, 95%, 44%)',
+    accent: 'hsl(100, 116, 139)',
     grid: 'hsl(215, 20%, 65%)',
     text: 'hsl(215, 25%, 27%)',
     background: 'hsl(0, 0%, 100%)',
