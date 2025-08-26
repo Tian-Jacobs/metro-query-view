@@ -1,10 +1,10 @@
-
 import React, { useState } from 'react';
 import DashboardLayout from '@/components/DashboardLayout';
 import QuerySidebar from '@/components/QuerySidebar';
 import QueryInput from '@/components/QueryInput';
 import ChartDisplay from '@/components/ChartDisplay';
-import TablePreview from '@/components/TablePreview';
+import QueryResult from '@/components/QueryResult';
+import SqlQueryDisplay from '@/components/SqlQueryDisplay';
 import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -211,24 +211,30 @@ const Index = () => {
           isLoading={isLoading}
         />
 
-        {/* Show Table Preview first if we have data */}
+        {/* Query Result - First */}
         {chartData && chartData.dataPreview && (
           <div className="mb-8">
-            <TablePreview
+            <QueryResult
               data={chartData.dataPreview}
               title={chartData.title}
-              sql={chartData.sql || ''}
               totalRecords={chartData.totalRecords}
             />
           </div>
         )}
 
-        {/* Then show Chart Display */}
+        {/* Chart Display - Second */}
         <ChartDisplay
           data={chartData}
           isLoading={isLoading}
           error={error}
         />
+
+        {/* SQL Query Display - Third */}
+        {chartData && chartData.sql && (
+          <div className="mt-8">
+            <SqlQueryDisplay sql={chartData.sql} />
+          </div>
+        )}
       </main>
     </DashboardLayout>
   );
