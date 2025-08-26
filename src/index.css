@@ -6,7 +6,7 @@
 /* Municipal Complaints Dashboard Design System */
 @layer base {
   :root {
-    --background: 248 250 252;
+    --background: 30 64 175 ;
     --foreground: 30 41 59;
 
     --card: 255 255 255;
