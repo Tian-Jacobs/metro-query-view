@@ -1,78 +1,86 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Municipal Complaints Dashboard Design System */
+/* Municipal Design System */
 @layer base {
   :root {
-    --background: 30 64 175 ;
-    --foreground: 30 41 59;
+    /* Core Colors */
+    --background: 255 255 255; /* white */
+    --foreground: 51 65 85; /* slate-700 */
 
-    --card: 255 255 255;
-    --card-foreground: 30 41 59;
+    --card: 255 255 255; /* white */
+    --card-foreground: 51 65 85; /* slate-700 */
 
     --popover: 255 255 255;
-    --popover-foreground: 30 41 59;
+    --popover-foreground: 51 65 85;
 
-    /* Municipal Primary Blues */
-    --primary: 30 64 175; /* #1E40AF */
-    --primary-foreground: 248 250 252;
+    /* Blues */
+    --primary: 30 64 175; /* blue-700 */
+    --primary-foreground: 255 255 255;
 
-    --secondary: 241 245 249;
-    --secondary-foreground: 30 41 59;
+    /* Grays */
+    --secondary: 241 245 249; /* slate-100 */
+    --secondary-foreground: 51 65 85;
 
-    --muted: 248 250 252;
-    --muted-foreground: 100 116 139;
+    --muted: 226 232 240; /* slate-200 */
+    --muted-foreground: 100 116 139; /* slate-500 */
 
-    /* Municipal Accent Green */
-    --accent: 5 150 105; /* #059669 */
+    /* Accent - keeping a subtle blue */
+    --accent: 59 130 246; /* blue-500 */
     --accent-foreground: 255 255 255;
 
+    /* System Colors */
     --destructive: 239 68 68;
     --destructive-foreground: 255 255 255;
 
-    --border: 226 232 240;
+    --border: 226 232 240; /* slate-200 */
     --input: 226 232 240;
-    --ring: 59 130 246;
+    --ring: 59 130 246; /* blue-500 */
 
     --radius: 0.75rem;
 
-    /* Custom Municipal Colors */
-    --municipal-blue: 30 64 175;
-    --municipal-blue-light: 59 130 246;
-    --municipal-green: 5 150 105;
-    --municipal-green-light: 16 185 129;
-    --municipal-gray: 71 85 105;
-    --municipal-gray-light: 148 163 184;
+    /* Municipal Colors */
+    --municipal-blue: 30 64 175; /* blue-700 */
+    --municipal-blue-light: 59 130 246; /* blue-500 */
+    --municipal-gray: 71 85 105; /* slate-600 */
+    --municipal-gray-light: 148 163 184; /* slate-400 */
 
     /* Chart Colors */
-    --chart-primary: 30 64 175;
-    --chart-secondary: 5 150 105;
-    --chart-tertiary: 71 85 105;
-    --chart-quaternary: 148 163 184;
+    --chart-primary: 30 64 175; /* blue-700 */
+    --chart-secondary: 59 130 246; /* blue-500 */
+    --chart-tertiary: 71 85 105; /* slate-600 */
+    --chart-quaternary: 226 232 240; /* slate-200 */
   }
 
   .dark {
-    --background: 15 23 42;
-    --foreground: 248 250 252;
-    --card: 30 41 59;
-    --card-foreground: 248 250 252;
+    --background: 15 23 42; /* slate-900 */
+    --foreground: 241 245 249; /* slate-100 */
+    
+    --card: 30 41 59; /* slate-800 */
+    --card-foreground: 241 245 249;
+    
     --popover: 30 41 59;
-    --popover-foreground: 248 250 252;
-    --primary: 30 64 175;
-    --primary-foreground: 15 23 42;
-    --secondary: 51 65 85;
-    --secondary-foreground: 248 250 252;
+    --popover-foreground: 241 245 249;
+    
+    --primary: 59 130 246; /* blue-500 */
+    --primary-foreground: 255 255 255;
+    
+    --secondary: 51 65 85; /* slate-700 */
+    --secondary-foreground: 241 245 249;
+    
     --muted: 51 65 85;
     --muted-foreground: 148 163 184;
-    --accent: 5 150 105;
-    --accent-foreground: 15 23 42;
-    --destructive: 148 163 184;
-    --destructive-foreground: 248 250 252;
+    
+    --accent: 30 64 175; /* blue-700 */
+    --accent-foreground: 255 255 255;
+    
+    --destructive: 239 68 68;
+    --destructive-foreground: 255 255 255;
+    
     --border: 51 65 85;
     --input: 51 65 85;
-    --ring: 30 64 175;
+    --ring: 59 130 246;
   }
 }
 

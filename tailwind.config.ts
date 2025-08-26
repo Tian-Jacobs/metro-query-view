@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -20,60 +19,56 @@ export default {
 		},
 		extend: {
 			colors: {
-				border: 'hsl(var(--border))',
-				input: 'hsl(var(--input))',
-				ring: 'hsl(var(--ring))',
-				background: 'hsl(var(--background))',
-				foreground: 'hsl(var(--foreground))',
+				border: '#e2e8f0',     // slate-200
+				input: '#e2e8f0',      // slate-200
+				ring: '#3b82f6',       // blue-500
+				background: '#ffffff',  // white
+				foreground: '#334155',  // slate-700
 				primary: {
-					DEFAULT: 'hsl(var(--primary))',
-					foreground: 'hsl(var(--primary-foreground))'
+					DEFAULT: '#1e40af',   // blue-700
+					foreground: '#ffffff' // white
 				},
 				secondary: {
-					DEFAULT: 'hsl(var(--secondary))',
-					foreground: 'hsl(var(--secondary-foreground))'
+					DEFAULT: '#f1f5f9',   // slate-100
+					foreground: '#334155' // slate-700
 				},
 				destructive: {
-					DEFAULT: 'hsl(var(--destructive))',
-					foreground: 'hsl(var(--destructive-foreground))'
+					DEFAULT: '#ef4444',   // red-500
+					foreground: '#ffffff' // white
 				},
 				muted: {
-					DEFAULT: 'hsl(var(--muted))',
-					foreground: 'hsl(var(--muted-foreground))'
+					DEFAULT: '#e2e8f0',   // slate-200
+					foreground: '#64748b' // slate-500
 				},
 				accent: {
-					DEFAULT: 'hsl(var(--accent))',
-					foreground: 'hsl(var(--accent-foreground))'
+					DEFAULT: '#3b82f6',   // blue-500
+					foreground: '#ffffff' // white
 				},
 				popover: {
-					DEFAULT: 'hsl(var(--popover))',
-					foreground: 'hsl(var(--popover-foreground))'
+					DEFAULT: '#ffffff',   // white
+					foreground: '#334155' // slate-700
 				},
 				card: {
-					DEFAULT: 'hsl(var(--card))',
-					foreground: 'hsl(var(--card-foreground))'
+					DEFAULT: '#ffffff',   // white
+					foreground: '#334155' // slate-700
 				},
 				// Municipal Color Palette
 				municipal: {
 					blue: {
-						DEFAULT: 'hsl(var(--municipal-blue))',
-						light: 'hsl(var(--municipal-blue-light))',
-					},
-					green: {
-						DEFAULT: 'hsl(var(--municipal-green))',
-						light: 'hsl(var(--municipal-green-light))',
+						DEFAULT: '#1e40af', // blue-700
+						light: '#3b82f6'    // blue-500
 					},
 					gray: {
-						DEFAULT: 'hsl(var(--municipal-gray))',
-						light: 'hsl(var(--municipal-gray-light))',
+						DEFAULT: '#475569', // slate-600
+						light: '#94a3b8'    // slate-400
 					}
 				},
 				// Chart Colors
 				chart: {
-					primary: 'hsl(var(--chart-primary))',
-					secondary: 'hsl(var(--chart-secondary))',
-					tertiary: 'hsl(var(--chart-tertiary))',
-					quaternary: 'hsl(var(--chart-quaternary))',
+					primary: '#1e40af',   // blue-700
+					secondary: '#3b82f6', // blue-500
+					tertiary: '#475569',  // slate-600
+					quaternary: '#e2e8f0' // slate-200
 				}
 			},
 			borderRadius: {

@@ -77,16 +77,16 @@ const QueryInput = ({
               <Button
                 type="submit"
                 disabled={!query.trim() || isLoading}
-                className="btn-municipal-primary h-12 px-8 flex items-center space-x-2 text-black"
+                className="btn-municipal-primary h-12 px-8 flex items-center space-x-2 text-white"
               >
                 {isLoading ? (
                   <>
-                    <Loader2 className="w-4 h-4 animate-spin text-black" />
+                    <Loader2 className="w-4 h-4 animate-spin text-white" />
                     <span>Generating...</span>
                   </>
                 ) : (
                   <>
-                    <Send className="w-4 h-4 text-black" />
+                    <Send className="w-4 h-4 text-white" />
                     <span>Generate Chart</span>
                   </>
                 )}
