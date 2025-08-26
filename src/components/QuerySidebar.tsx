@@ -62,7 +62,7 @@ const QuerySidebar = ({ onQuerySelect }: QuerySidebarProps) => {
   ];
 
   return (
-    <div className="w-80 municipal-sidebar p-6 overflow-y-auto">
+    <div className="w-80 municipal-sidebar p-6 overflow-y-auto bg-background">
       {/* Search Section */}
       <div className="mb-8">
         <div className="flex items-center space-x-2 mb-4">
