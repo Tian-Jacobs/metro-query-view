@@ -4,6 +4,7 @@ import DashboardLayout from '@/components/DashboardLayout';
 import QuerySidebar from '@/components/QuerySidebar';
 import QueryInput from '@/components/QueryInput';
 import ChartDisplay from '@/components/ChartDisplay';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 
