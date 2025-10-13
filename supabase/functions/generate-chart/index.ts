@@ -99,6 +99,72 @@ function clampPlan(raw: any): Plan | null {
   };
 }
 
+async function isPromptRelevant(prompt: string): Promise<{ relevant: boolean; reason?: string }> {
+  const validationPrompt = `
+You are validating if a user prompt is relevant to a municipal complaints management system.
+
+The system contains data about:
+- Municipal complaints (title, description, submission dates, categories)
+- Residents who filed complaints (name, email, ward)
+- Service categories (water, electricity, roads, sanitation, etc.)
+- Status logs (complaint status: Pending, In Progress, Resolved)
+
+Relevant prompts ask about:
+- Complaint trends, volumes, or patterns
+- Status distributions or resolution times
+- Category breakdowns or ward-based analysis
+- Time-based complaint analysis (monthly, yearly trends)
+- Resident or department statistics related to complaints
+
+Irrelevant prompts ask about:
+- Unrelated topics (weather, sports, recipes, general knowledge)
+- Data not in the system (budget, staff, equipment, revenue)
+- Personal questions or casual conversation
+- Requests for non-analytical tasks
+
+User prompt: "${prompt}"
+
+Return ONLY a JSON object:
+{
+  "relevant": true/false,
+  "reason": "Brief explanation if not relevant"
+}`;
+
+  const body = {
+    contents: [{ role: "user", parts: [{ text: validationPrompt }] }],
+    generationConfig: { temperature: 0.1, maxOutputTokens: 256 }
+  };
+
+  try {
+    const resp = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-001:generateContent?key=${GEMINI_API_KEY}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body)
+      }
+    );
+
+    if (!resp.ok) {
+      console.error("Gemini validation error", resp.status);
+      return { relevant: true }; // Fail open to allow query generation
+    }
+
+    const data = await resp.json();
+    const text = data?.candidates?.[0]?.content?.parts?.map((p: any) => p.text).join("\n") ?? "";
+    
+    const start = text.indexOf("{");
+    const end = text.lastIndexOf("}");
+    if (start === -1 || end === -1) return { relevant: true };
+    
+    const result = JSON.parse(text.slice(start, end + 1));
+    return result;
+  } catch (e) {
+    console.error("Validation error:", e);
+    return { relevant: true }; // Fail open
+  }
+}
+
 async function askGeminiForPlan(prompt: string): Promise<Plan | null> {
   const system = `
 You are a SQL query generator for a PostgreSQL database containing municipal complaints data. Generate SAFE SELECT-only queries using PostgreSQL syntax.
@@ -227,6 +293,20 @@ serve(async (req) => {
     const { prompt, chartType: desiredChartType, previewOnly } = await req.json();
     if (!prompt || typeof prompt !== "string") {
       return new Response(JSON.stringify({ error: "Missing 'prompt' string." }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Validate if the prompt is relevant to municipal complaints data
+    console.log("Validating prompt relevance:", prompt);
+    const validation = await isPromptRelevant(prompt);
+    
+    if (!validation.relevant) {
+      const errorMessage = validation.reason || 
+        "This query doesn't relate to municipal complaints data. Please ask about complaints, categories, wards, status, or resolution times.";
+      console.log("Prompt rejected:", errorMessage);
+      return new Response(JSON.stringify({ error: errorMessage }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
