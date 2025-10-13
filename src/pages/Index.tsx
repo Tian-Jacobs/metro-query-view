@@ -147,7 +147,8 @@ const Index = () => {
       });
 
       if (fnError) {
-        const errorMessage = fnError.message || "Failed to generate chart. Please try again or contact support.";
+        // Extract the actual error message from the response
+        const errorMessage = (data as any)?.error || fnError.message || "Failed to generate chart. Please try again.";
         setError(errorMessage);
         toast({
           title: "Generation Failed",
@@ -176,7 +177,7 @@ const Index = () => {
         description: `Successfully created ${payload.chartType} chart with ${payload.totalRecords} records.`,
       });
     } catch (err: any) {
-      const errorMessage = err?.message || "Failed to generate chart. Please try again or contact support.";
+      const errorMessage = err?.message || "Failed to generate chart. Please try again.";
       setError(errorMessage);
       toast({
         title: "Generation Failed",

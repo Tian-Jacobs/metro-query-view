@@ -303,9 +303,8 @@ serve(async (req) => {
     const validation = await isPromptRelevant(prompt);
     
     if (!validation.relevant) {
-      const errorMessage = validation.reason || 
-        "This query doesn't relate to municipal complaints data. Please ask about complaints, categories, wards, status, or resolution times.";
-      console.log("Prompt rejected:", errorMessage);
+      const errorMessage = "Prompt rejected: Please keep your query relevant to municipal complaints data (complaints trends, categories, wards, status, or resolution times).";
+      console.log("Prompt rejected:", validation.reason || errorMessage);
       return new Response(JSON.stringify({ error: errorMessage }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
