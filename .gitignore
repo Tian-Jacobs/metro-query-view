@@ -15,11 +15,18 @@ dist-ssr
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
-.idea
-.DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
 .env
+
+# Environment files
+.env.local
+.env.*
+*.sw?
+<<<<<<< HEAD
+.env
+=======
+
+# Environment files
+.env
+.env.local
+.env.*
+>>>>>>> aa2cc58 (Ignore .env and stop tracking env files)
