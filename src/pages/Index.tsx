@@ -7,6 +7,9 @@ import QueryResult from '@/components/QueryResult';
 import SqlQueryDisplay from '@/components/SqlQueryDisplay';
 import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { Menu } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 
 interface ChartData {
   chartType: string;
@@ -191,9 +194,27 @@ const Index = () => {
 
   return (
     <DashboardLayout>
-      <QuerySidebar onQuerySelect={handleQuerySelect} />
+      {/* Desktop Sidebar - hidden on mobile */}
+      <div className="hidden lg:block">
+        <QuerySidebar onQuerySelect={handleQuerySelect} />
+      </div>
       
-      <main className="flex-1 p-6 max-w-6xl">
+      <main className="flex-1 p-4 md:p-6 w-full max-w-6xl">
+        {/* Mobile Menu Button */}
+        <div className="lg:hidden mb-4">
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button variant="outline" size="sm" className="w-full justify-start">
+                <Menu className="w-4 h-4 mr-2" />
+                Sample Queries
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="left" className="w-80 p-0">
+              <QuerySidebar onQuerySelect={handleQuerySelect} />
+            </SheetContent>
+          </Sheet>
+        </div>
+
         <div className="mb-6">
           <h2 className="text-xl font-semibold text-slate-800 mb-2">
             Analytics Dashboard
