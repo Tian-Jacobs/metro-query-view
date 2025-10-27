@@ -7,9 +7,10 @@ import QueryResult from '@/components/QueryResult';
 import SqlQueryDisplay from '@/components/SqlQueryDisplay';
 import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { Menu } from 'lucide-react';
+import { Menu, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 interface ChartData {
   chartType: string;
@@ -223,6 +224,15 @@ const Index = () => {
             Generate insights from municipal complaints data using natural language queries.
           </p>
         </div>
+
+        <Alert className="mb-6 bg-amber-50 border-amber-200">
+          <AlertCircle className="h-4 w-4 text-amber-600" />
+          <AlertTitle className="text-amber-900">Database Availability Notice</AlertTitle>
+          <AlertDescription className="text-amber-800">
+            This application uses Supabase's free tier, which pauses databases after 7 days of inactivity. 
+            If you experience connection issues, the database may need to be reactivated. Please contact the administrator if the service is unavailable.
+          </AlertDescription>
+        </Alert>
 
         <QueryInput
           query={query}
