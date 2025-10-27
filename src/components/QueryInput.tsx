@@ -54,7 +54,7 @@ const QueryInput = ({
             />
           </div>
           
-          <div className="flex space-x-4">
+          <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
             <div className="flex-1">
               <label htmlFor="chartType" className="block text-sm font-medium text-slate-700 mb-2">
                 Chart Type
@@ -73,11 +73,11 @@ const QueryInput = ({
               </Select>
             </div>
             
-            <div className="flex items-end">
+            <div className="flex md:items-end w-full md:w-auto">
               <Button
                 type="submit"
                 disabled={!query.trim() || isLoading}
-                className="btn-municipal-primary h-12 px-8 flex items-center space-x-2 text-white"
+                className="btn-municipal-primary h-12 px-8 flex items-center justify-center space-x-2 text-white w-full md:w-auto"
               >
                 {isLoading ? (
                   <>
